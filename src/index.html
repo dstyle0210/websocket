@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹소켓 심플</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+
+<textarea id="message"></textarea>
+<button onclick="send();">전송</button>
+<section id="chatList"><!-- 채팅목록 --></section>
+
+<script>
+const webSocket = new WebSocket(`ws${location.protocol=="https:" ? "s" : ""}://localhost:3000`);
+webSocket.addEventListener("message",(event)=>{
+    const message = JSON.parse(event.data);
+    console.log(message.date);
+    const dom = $(`<div><p>${message.message}</p><span>${message.date}</span></div>`);
+    $("#chatList").append(dom);
+});
+function send(){
+    const date = new Date();
+    const msg = {
+        date:date.getHours() +":"+date.getMinutes(),
+        message:$("#message").val()
+    };
+    console.log(JSON.stringify(msg));
+    webSocket.send(JSON.stringify(msg));
+};
+
+$(()=>{
+    $("#message").on("keyup",(e)=>{
+        if(e.keyCode==13) send();
+    });
+});
+</script>
+
+</body>
+</html>
